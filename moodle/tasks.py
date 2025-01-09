@@ -4,6 +4,7 @@ from decouple import config
 from moodle.utils import call_moodle_api
 from moodle.utils import get_connected_users
 from moodle.models import MoodleUser
+import logging
 from moodle.utils import fetch_users_from_moodle
 
 MOODLE_API_URL = config('MOODLE_API_URL')  
@@ -32,10 +33,15 @@ def fetch_moodle_data_task():
         print(f"Error retrieving data from Moodle: {str(e)}")
         return None
 
+logger = logging.getLogger(__name__)
+
+@shared_task
 def fetch_and_save_users():
-    users = fetch_users_from_moodle()  # Fonction qui récupère les données
+    users = fetch_users_from_moodle()  # Fonction qui récupère les utilisateurs
+    if not users:
+        logger.warning("Aucun utilisateur récupéré depuis Moodle.")
     for user_data in users:
-        MoodleUser.objects.update_or_create(
+        user, created = MoodleUser.objects.update_or_create(
             username=user_data['username'],
             defaults={
                 'email': user_data['email'],
@@ -43,3 +49,8 @@ def fetch_and_save_users():
                 'last_login': user_data['lastaccess'],
             },
         )
+        if created:
+            logger.info(f"Utilisateur {user_data['username']} créé.")
+        else:
+            logger.info(f"Utilisateur {user_data['username']} mis à jour.")
+    return len(users)

@@ -8,8 +8,6 @@ class MoodlePlatform(models.Model):
     def __str__(self):
         return self.name
 
-from django.db import models
-
 class MoodleUser(models.Model):
     username = models.CharField(max_length=150)
     email = models.EmailField()

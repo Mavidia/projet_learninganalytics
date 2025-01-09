@@ -66,8 +66,12 @@ WSGI_APPLICATION = 'mon_projet.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'moodle_data',  # Remplacez par le nom de votre base de données
+        'USER': 'root',      # Remplacez par votre utilisateur MariaDB
+        'PASSWORD': 'passer',  # Remplacez par votre mot de passe
+        'HOST': '127.0.0.1',
+        'PORT': '3300',
     }
 }
 
@@ -119,4 +123,22 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'  # Backend pour les résultats de tâche
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'ERROR',  # Tu peux choisir le niveau : DEBUG, INFO, ERROR, CRITICAL
+            'class': 'logging.FileHandler',
+            'filename': 'debug.log',  # Le fichier où les logs seront stockés
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],  # Ajouter un handler pour les logs de Django
+            'level': 'DEBUG',  # Le niveau de logs
+            'propagate': True,  # Permet de propager les logs à d’autres modules
+        },
+    },
+}
 

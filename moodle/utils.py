@@ -1,6 +1,9 @@
 import requests
 from time import time
 from decouple import config
+import logging
+
+logger = logging.getLogger(__name__)
 
 MOODLE_API_URL = config('MOODLE_API_URL')  # Récupérer l'URL de l'API depuis le fichier .env
 MOODLE_API_TOKEN = config('MOODLE_API_TOKEN')  # Récupérer la clé API
@@ -46,15 +49,22 @@ def get_connected_users(url, token):
     
     return data
 
-
 def fetch_users_from_moodle():
-    params = {
-        'wstoken': MOODLE_API_TOKEN,  # Utilisation de la clé API
-        'wsfunction': 'core_user_get_users',  # Fonction API pour récupérer les utilisateurs
-        'moodlewsrestformat': 'json',  # Format des données (ici en JSON)
-        'criteria[0][key]': 'lastaccess',  # Critère de recherche
-        'criteria[0][value]': 0,  # Valeur du critère
-    }
-    response = requests.get(MOODLE_API_URL, params=params)
-    response.raise_for_status()  # Lancer une erreur si la requête échoue
-    return response.json()['users']  # Retourner les utilisateurs récupérés
+    try:
+        logger.info('Démarrage de la récupération des utilisateurs depuis Moodle.')
+        params = {
+            'wstoken': MOODLE_API_TOKEN,
+            'wsfunction': 'core_user_get_users',
+            'moodlewsrestformat': 'json',
+            'criteria[0][key]': 'lastaccess',
+            'criteria[0][value]': 0,
+        }
+        response = requests.get(MOODLE_API_URL, params=params)
+        response.raise_for_status()  # Si une erreur survient, elle sera levée ici
+        users = response.json()['users']
+        logger.info(f"{len(users)} utilisateurs récupérés.")
+        print(users)  # Pour vérifier directement les utilisateurs récupérés
+        return users
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Erreur lors de la récupération des utilisateurs Moodle : {e}")
+        raise
