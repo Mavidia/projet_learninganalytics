@@ -1,0 +1,13 @@
+# Ignorer le fichier .env contenant les informations sensibles
+api.env
+
+# Ignorer les fichiers compilés Python
+*.pyc
+*.pyo
+__pycache__/
+
+# Ignorer le répertoire de l'environnement virtuel
+venv/
+
+# Ignorer les fichiers de base de données SQLite
+*.sqlite3
